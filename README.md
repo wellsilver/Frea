@@ -11,7 +11,7 @@ Heres some useful documentation
 
 https://wiki.vg/protocol
 
-along with here for the socket library
+along with here with the built-in socket library (skip to the socket object lol)
 
 https://docs.python.org/3/library/socket.html
 
