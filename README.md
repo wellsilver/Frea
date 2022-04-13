@@ -9,7 +9,7 @@ You dont (yet)
 
 Heres some useful documentation
 
-https://c4k3.github.io/wiki.vg/Protocol.html
+https://wiki.vg/protocol
 
 along with here for the socket library
 
