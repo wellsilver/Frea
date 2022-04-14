@@ -18,3 +18,9 @@ https://docs.python.org/3/library/socket.html
 sadly modules like quarry dont work very well and have poor documentation though it is easy enough to use the links above for help
 
 Ive also tried to make this easy to understand so you can copy code and stuff
+
+## progress
+
+The client doesnt get kicked immediately wich is a starting point
+
+At the moment im working on returning a website in the case you connect to it via http instead of anything else
