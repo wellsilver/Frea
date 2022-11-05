@@ -7,6 +7,10 @@ Abandoned?????????????? ✅
 
 hia to contribute just download the src and do anything you want theres some things at the bottom
 
+using gnu-gcc im on mingw so
+
+keep away from anything like literally anything dynamic I just want this to be a single exe and some files and yeah
+
 ## Current features
 
 ### basic:
