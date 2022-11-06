@@ -5,11 +5,27 @@ Abandoned?????????????? ✅
 
 ## contributing
 
-hia to contribute just download the src and do anything you want theres some things at the bottom
+Hi! Static only please, dynamic stuff is really annoying the more get added so lets just keep it at 0
 
-using gnu-gcc im on mingw so
+Theres a readme.md in source too that you can find
 
-keep away from anything like literally anything dynamic I just want this to be a single exe and some files and yeah
+## compiling
+
+You need GCC and pthreads
+
+for both platforms frea.exe is found in ./isolate
+
+### windows
+
+you need: mingw-gcc and mingw-pthread
+
+to compile run run.bat
+
+### linux
+
+you need: gcc and pthread (both probably included by default)
+
+to compile copy paste everything from run.bat and paste in console
 
 ## Current features
 
@@ -27,4 +43,3 @@ keep away from anything like literally anything dynamic I just want this to be a
 | lua | 0% | ❌ |
 | JS | 0% | ❌ |
 | Python | 0% | ❌ |
-| extensive API | 0% | ❌ |
