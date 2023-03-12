@@ -1,10 +1,14 @@
-cc := gcc
-libs += -lpthread
-out := Frea.exe
+cc = gcc
+libs = -lpthread
+flags = -Wall
 
-$(out):
-  $(cc) src/main.c $(libs) -o $(out)
+ifeq ($(OS),Windows_NT)
+	delcmd = del
+else
+	delcmd = rm
+endif
+main:
+	$(cc) src/main.c $(flags) $(libs) -o main.o
   
-
 clean:
-  del $(out)
+	$(delcmd) main.o
