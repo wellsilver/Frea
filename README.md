@@ -11,23 +11,13 @@ Theres a readme.md in source too that you can find
 
 ## compiling
 
-You need GCC and pthreads
+```sh
+git clone https://github.com/wellsilver/Frea
+cd Frea
+make
+```
 
-for both platforms frea.exe is found in ./isolate
-
-### windows
-
-you need: mingw-gcc and mingw-pthread
-
-to compile run run.bat
-
-### linux
-
-you need: gcc and pthread (both probably included by default)
-
-to compile copy paste everything from run.bat and paste in console
-
-## Current features
+pre-requisites: make, gcc, pthread
 
 ### basic:
 
