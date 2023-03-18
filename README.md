@@ -22,11 +22,3 @@ pre-requisites: make, gcc, pthread
 | -------- | --------- | ------- |
 | connect | 0% | ❌ |
 | worlds | 0% | ❌ |
-
-### plugins:
-
-| features | proggress | active? |
-| -------- | --------- | ------- |
-| lua | 0% | ❌ |
-| JS | 0% | ❌ |
-| Python | 0% | ❌ |
