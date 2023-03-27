@@ -1,4 +1,4 @@
-cc = gcc
+cc = g++
 libs = -lpthread
 flags = -Wall
 
@@ -8,7 +8,7 @@ else
 	delcmd = rm
 endif
 main:
-	$(cc) src/main.c $(flags) $(libs) -o main.o
+	$(cc) src/main.cpp $(flags) $(libs) -o main.o
   
 clean:
 	$(delcmd) main.o
