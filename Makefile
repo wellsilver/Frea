@@ -1,14 +1,8 @@
-cc = g++
-libs = -lpthread
+cc = gcc
+libs = -l pthread
 flags = -Wall
 
-ifeq ($(OS),Windows_NT)
-	delcmd = del
-else
-	delcmd = rm
-endif
 main:
-	$(cc) src/main.cpp $(flags) $(libs) -o main.o
-  
+	$(cc) src/main.c $(flags) $(libs) -o main.o
 clean:
-	$(delcmd) main.o
+	rm main.o
