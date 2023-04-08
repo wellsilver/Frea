@@ -5,7 +5,7 @@
 #include <stdlib.h> // malloc
 
 enum version {
-    v_1_19_4 = 762,
+    v_1_19_4 = 1194,
 };
 
 struct client {
@@ -17,5 +17,15 @@ struct client {
 
 int clients_size;
 struct client *clients;
+
+void serverlist() {
+    
+}
+
+// threaded, arg unused, handshakes with clients
+void *handshaker(void *arg) { 
+    
+    return 0;
+}
 
 #endif
