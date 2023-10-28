@@ -2,7 +2,11 @@ cc = gcc
 libs = -l pthread
 flags = -Wall
 
-main:
+all: main.o run clean
+
+main.o:
 	$(cc) src/main.c $(flags) $(libs) -o main.o
+run:
+	./main.o
 clean:
 	rm main.o
