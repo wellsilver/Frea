@@ -17,10 +17,10 @@ enum logtype {
 void logprint(enum logtype type,char *str) {
   switch (type) {
     case log_info:
-      str = concat(3,"\e[0;37m[INFO] ", str, "\n");
+      str = concat(2,"\e[0;37m[INFO] ", str);
     break;
     case log_warn:
-      str = concat(3,"\e[0;31m[WARN] ", str, "\n");
+      str = concat(2,"\e[0;31m[WARN] ", str);
     break;
   }
   write(cnsl[1], str, strlen(str));
@@ -36,8 +36,6 @@ int main(int argc, char **argv) {
   cnsl = (int *) malloc(2 * sizeof(int));
 
   pipe(cnsl); // init cnsl pipe
-  
-  
 
   pthread_create(&servert,NULL,&server,NULL);
   
@@ -45,7 +43,9 @@ int main(int argc, char **argv) {
   while (1) {
     read(cnsl[0],buf,128);
     if (buf[0] != '\r') {
-      puts(buf);
+      // for some reason printf isnt formatting anything after %s so haved to use sprintf
+      printf("\e[2K\e[0E%s\n> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
+      fflush(stdout);
     }
   }
 }

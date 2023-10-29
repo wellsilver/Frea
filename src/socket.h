@@ -27,7 +27,7 @@ void *server(void *) {
   logprint(log_info, s);
 
   while (1) {
-
+    
   }
 
   return NULL;
