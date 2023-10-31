@@ -8,6 +8,7 @@
 
 // cnsl is a pipe to log shutdowns and prints to main thread
 int *cnsl;
+int failure = 0;
 
 enum logtype {
   log_warn=1,
@@ -43,7 +44,6 @@ int main(int argc, char **argv) {
   while (1) {
     read(cnsl[0],buf,128);
     if (buf[0] != '\r') {
-      // for some reason printf isnt formatting anything after %s so haved to use sprintf
       printf("\e[2K\e[0E%s\n> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
       fflush(stdout);
     }
