@@ -3,6 +3,7 @@
 
 char *s;
 
+#include "main.c"
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // todo, check this for cross-distribution ability lol
@@ -38,8 +39,19 @@ void *server(void *) {
   address.sin_addr.s_addr = INADDR_ANY;
   address.sin_port = htons(25565);
 
+  if (bind(serverfd, (struct sockaddr*) &address, sizeof(address)) < 0) {
+    logprint(log_warn, "Bind failure. Check if 25565 is free");
+    failure = 2;
+    return NULL;
+  }
+  
   while (1) {
     
+
+    if (failure != 0) {
+      close(serverfd);
+      break;
+    }
   }
 
   return NULL;

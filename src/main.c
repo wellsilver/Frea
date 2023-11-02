@@ -1,9 +1,12 @@
 // linux only
+#ifndef mainh
+#define mainh
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> 
 #include <string.h>
+#include <signal.h>
 #include "util.h"
 
 // cnsl is a pipe to log shutdowns and prints to main thread
@@ -31,8 +34,15 @@ void logprint(enum logtype type,char *str) {
 #include "socket.h"
 #include <pthread.h>
 
+void siginthandle(int dummy) {
+  failure = 1;
+  logprint(log_info, "Got a sigint");
+}
+
 int main(int argc, char **argv) {
   pthread_t servert;
+
+  signal(SIGINT, siginthandle);
 
   cnsl = (int *) malloc(2 * sizeof(int));
 
@@ -41,11 +51,24 @@ int main(int argc, char **argv) {
   pthread_create(&servert,NULL,&server,NULL);
   
   char *buf = (char *) malloc(128);
+
+  int loop;
+
   while (1) {
+    for (loop=0;loop<128;loop++) {
+      buf[loop] = 0;
+    }
     read(cnsl[0],buf,128);
     if (buf[0] != '\r') {
-      printf("\e[2K\e[0E%s\n> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
+      printf("\e[2K\e[0E%s\n\e[0;37m> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
       fflush(stdout);
+    } else {
+      printf("== '\\r'");
+    }
+    if (failure!=0) {
+      return 0;
     }
   }
 }
+
+#endif
