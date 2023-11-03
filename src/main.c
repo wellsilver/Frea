@@ -39,8 +39,20 @@ void siginthandle(int dummy) {
   logprint(log_info, "Got a sigint");
 }
 
+void *stdinhandle(void *) {
+  char *buf = (char *) malloc(128);
+  while (failure==0) {
+    sleep(0);
+    read(STDIN_FILENO, buf, 128);
+
+  }
+  
+  return NULL;
+}
+
 int main(int argc, char **argv) {
   pthread_t servert;
+  pthread_t stdinhndl;
 
   signal(SIGINT, siginthandle);
 
@@ -49,6 +61,7 @@ int main(int argc, char **argv) {
   pipe(cnsl); // init cnsl pipe
 
   pthread_create(&servert,NULL,&server,NULL);
+  pthread_create(&stdinhndl,NULL,&stdinhandle,NULL);
   
   char *buf = (char *) malloc(128);
 
@@ -59,12 +72,10 @@ int main(int argc, char **argv) {
       buf[loop] = 0;
     }
     read(cnsl[0],buf,128);
-    if (buf[0] != '\r') {
-      printf("\e[2K\e[0E%s\n\e[0;37m> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
-      fflush(stdout);
-    } else {
-      printf("== '\\r'");
-    }
+
+    printf("\e[2K\e[0E%s\n\e[0;37m> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
+    fflush(stdout);
+
     if (failure!=0) {
       return 0;
     }
