@@ -1,3 +1,6 @@
+#ifndef utilh
+#define utilh
+
 #include <stdlib.h>       // calloc
 #include <stdarg.h>       // va_*
 #include <string.h>       // strlen, strcpy
@@ -29,3 +32,5 @@ char* concat(int count, ...) {
 
   return merged;
 }
+
+#endif

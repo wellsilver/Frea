@@ -4,16 +4,19 @@
 char *s;
 
 #include "main.c"
+#include "types.h"
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // todo, check this for cross-distribution ability lol
 
+// any time a socket is connected this is called
 void *client(void *arg) {
-  //int *fd = (int *) arg;
-
-
+  //int fd = *(int *) arg;
+  free(arg);
 
   pthread_detach(pthread_self()); 
+
+
 
   return NULL;
 }
@@ -23,11 +26,8 @@ void *server(void *) {
 
   int serverfd;
   struct sockaddr_in address;
-
-  //pthread_t *tmp;
-  sleep(5);
   
-  s = malloc(strlen("Minecraft Frea 0.0"));
+  s = (char *) malloc(strlen("Minecraft Frea 0.0"));
   strcpy(s,"Minecraft Frea 0.0");
 
   logprint(log_info, s);
@@ -40,13 +40,14 @@ void *server(void *) {
   address.sin_port = htons(25565);
 
   if (bind(serverfd, (struct sockaddr*) &address, sizeof(address)) < 0) {
-    logprint(log_warn, "Bind failure. Check if 25565 is free");
+    logprint(log_warn, "Bind failure. Check if port 25565 is free");
     failure = 2;
     return NULL;
   }
-  
+  pthread_t clientthread;
+  listen(serverfd, 1);
   while (1) {
-    
+    pthread_create(&clientthread,NULL,&client,(void *) (uint64_t) accept(serverfd, NULL, NULL));
 
     if (failure != 0) {
       close(serverfd);

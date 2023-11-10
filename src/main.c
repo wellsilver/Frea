@@ -49,7 +49,7 @@ void *stdinhandle(void *) {
     for (loop=0;loop<128;loop++) {
       buf[loop] = 0;
     }
-    read(STDIN_FILENO, buf, 128-2);
+    read(STDIN_FILENO, buf, 128);
     write(cnsl[1], "", 1);
     processcmd(buf);
   }
@@ -81,6 +81,7 @@ int main(int argc, char **argv) {
 
     printf("\e[2K\e[0E%s\e[0;37m> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
     fflush(stdout);
+    fflush(stdout); // for some reason having two of these solves issue
 
     if (failure!=0) {
       return 0;
