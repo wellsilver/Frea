@@ -27,10 +27,12 @@ void logprint(enum logtype type,char *str) {
       str = concat(2,"\e[0;31m[WARN] ", str);
     break;
   }
+  str = concat(2, str, "\n");
   write(cnsl[1], str, strlen(str));
   free(str);
 }
 
+#include "commands.h"
 #include "socket.h"
 #include <pthread.h>
 
@@ -41,12 +43,16 @@ void siginthandle(int dummy) {
 
 void *stdinhandle(void *) {
   char *buf = (char *) malloc(128);
+  int loop;
   while (failure==0) {
     sleep(0);
-    read(STDIN_FILENO, buf, 128);
-
+    for (loop=0;loop<128;loop++) {
+      buf[loop] = 0;
+    }
+    read(STDIN_FILENO, buf, 128-2);
+    write(cnsl[1], "", 1);
+    processcmd(buf);
   }
-  
   return NULL;
 }
 
@@ -73,7 +79,7 @@ int main(int argc, char **argv) {
     }
     read(cnsl[0],buf,128);
 
-    printf("\e[2K\e[0E%s\n\e[0;37m> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
+    printf("\e[2K\e[0E%s\e[0;37m> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
     fflush(stdout);
 
     if (failure!=0) {
