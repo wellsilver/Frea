@@ -12,6 +12,7 @@
 // cnsl is a pipe to log shutdowns and prints to main thread
 int *cnsl;
 int failure = 0;
+int *serverfdsave;
 
 enum logtype {
   log_warn=1,
@@ -38,7 +39,7 @@ void logprint(enum logtype type,char *str) {
 
 void siginthandle(int dummy) {
   failure = 1;
-  logprint(log_info, "Got a sigint");
+  logprint(log_info, "Quit");
 }
 
 void *stdinhandle(void *) {
@@ -73,7 +74,7 @@ int main(int argc, char **argv) {
 
   int loop;
 
-  while (1) {
+  while (failure==0) {
     for (loop=0;loop<128;loop++) {
       buf[loop] = 0;
     }
@@ -81,12 +82,9 @@ int main(int argc, char **argv) {
 
     printf("\e[2K\e[0E%s\e[0;37m> ", buf); // string: clear line (remove "> ") replace with buf, then move cursor down and place new "> "
     fflush(stdout);
-    fflush(stdout); // for some reason having two of these solves issue
-
-    if (failure!=0) {
-      return 0;
-    }
   }
+  close(*serverfdsave); // stop the server thread so there isnt any binding troubles on restart with the same terminal
+  return 0;
 }
 
 #endif

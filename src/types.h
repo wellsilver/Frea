@@ -16,7 +16,7 @@
 // big endian is, I mean, ok to deal with
 // but you could just send the size of the integers instead? It would waste a byte but these things are wasting 9 so
 
-// read a varint (varint or varlong)
+// read a varint
 int64_t readvarint(char *v) {
   int value = 0;
   int position = 0;
@@ -35,6 +35,7 @@ int64_t readvarint(char *v) {
   return value;
 }
 
+// read a varlong
 int64_t readvarlong(char *v) {
   int value = 0;
   int position = 0;
@@ -53,7 +54,46 @@ int64_t readvarlong(char *v) {
   return value;
 }
 
-char *writevarshort(int v) {
+// read a varint from socket fd
+int64_t readvarintfd(int fd) {
+  int value = 0;
+  int position = 0;
+  char currentByte;
+  int d = 0;
+
+  while (1) {
+    read(fd, &currentByte, 1);
+
+    d++;
+    value |= (currentByte & segmentbits) << position;
+
+    if ((currentByte & continuebit) == 0) break;
+
+    position += 7;
+  }
+  return value;
+}
+
+// read a varlong from socket fd
+int64_t readvarlongfd(int fd) {
+  int value = 0;
+  int position = 0;
+  char currentByte;
+  int d = 0;
+
+  while (1) {
+    read(fd, &currentByte, 1);
+    d++;
+    value |= (long) (currentByte & segmentbits) << position;
+
+    if ((currentByte & continuebit) == 0) break;
+
+    position += 7;
+  }
+  return value;
+}
+
+char *writevarint(int v) {
   int csize = 1;
   char *c = (char *) malloc(1);
   c[0] = 0;
@@ -109,5 +149,14 @@ uint64_t writeposition(long x,long y,long z) {
 #define rposy(pos) (pos << 52 >> 52)
 // get position z pos=uint64_t
 #define rposz(pos) (pos << 26 >> 38)
+
+
+char *readstringfd(int fd) {
+  int length = readvarintfd(fd);
+  char *str = malloc(length+1);
+  str[length] = 0; // null terminator
+  read(fd, str, length);
+  return str;
+}
 
 #endif
