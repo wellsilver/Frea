@@ -3,6 +3,11 @@
 #define typesh
 
 #include <byteswap.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include "util.h"
+
 #define segmentbits 0x7F
 #define continuebit 0x80
 
@@ -49,11 +54,49 @@ int64_t readvarlong(char *v) {
 }
 
 char *writevarshort(int v) {
-  return "";
+  int csize = 1;
+  char *c = (char *) malloc(1);
+  c[0] = 0;
+
+  while (1) {
+    if ((v & ~segmentbits) == 0) {
+      csize++;
+      c = (char *) realloc(c, csize);
+      c[csize-2] = v;
+      c[csize-1] = 0;
+      return c;
+    }
+    csize++;
+    c = (char *) realloc(c, csize);
+    c[csize-2] = (v & segmentbits) | continuebit;
+    c[csize-1] = 0;
+
+    // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
+    v >>= 7;
+  }
 }
 
 char *writevarlong(int v) {
-  return "";
+  int csize = 1;
+  char *c = (char *) malloc(1);
+  c[0] = 0;
+
+  while (1) {
+    if ((v & ~((long) segmentbits)) == 0) {
+      csize++;
+      c = (char *) realloc(c, csize);
+      c[csize-2] = v;
+      c[csize-1] = 0;
+      return c;
+    }
+    csize++;
+    c = (char *) realloc(c, csize);
+    c[csize-2] = (v & segmentbits) | continuebit;
+    c[csize-1] = 0;
+
+    // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
+    v >>= 7;
+  }
 }
 
 #endif
