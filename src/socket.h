@@ -11,12 +11,18 @@ char *s;
 
 // any time a socket is connected this is called
 void *client(void *arg) {
-  //int fd = *(int *) arg;
+  int fd = *(int *) arg;
+  int loop;
   free(arg);
 
   pthread_detach(pthread_self()); 
-
-
+  char *buf = (char *) malloc(128);
+  while (1) {
+    for (loop=0;loop<128;loop++) {
+      buf[loop] = 0;
+    }
+    read(fd, buf, 128);
+  }
 
   return NULL;
 }

@@ -99,4 +99,15 @@ char *writevarlong(int v) {
   }
 }
 
+uint64_t writeposition(long x,long y,long z) {
+  return ((x & 0x3FFFFFF) << 38) | ((z & 0x3FFFFFF) << 12) | (y & 0xFFF);
+}
+
+// get position x pos=uint64_t
+#define rposx(pos) (pos >> 38)
+// get position y pos=uint64_t
+#define rposy(pos) (pos << 52 >> 52)
+// get position z pos=uint64_t
+#define rposz(pos) (pos << 26 >> 38)
+
 #endif
