@@ -17,10 +17,10 @@ void serverlistping(int fd) {
   char *resp = (char *) malloc(500);
   resp[0] = 0;
 
-  sprintf(resp, "{\"version\": {\"name\": \"1.19.4\", \"protocol\": 762}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
+  sprintf(resp, "{\"version\": {\"name\": \"1.20.2\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
   100, 0, "The Frea server"); // maxplayers, onlineplayers, motd
   printf("%s\n", resp);
-  while (1) {
+  while (1) { 
     length = readvarintfd(fd);
     type = readvarintfd(fd);
     if (type == 0) {
