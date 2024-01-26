@@ -19,16 +19,16 @@ void serverlistping(int fd) {
 
   sprintf(resp, "{\"version\": {\"name\": \"1.20.2\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
   100, 0, "The Frea server"); // maxplayers, onlineplayers, motd
-  printf("%s\n", resp);
+
   while (1) { 
     length = readvarintfd(fd);
     type = readvarintfd(fd);
     if (type == 0) {
-      logprint(log_info, "asked");
-      
-      buf = writevarint(strlen(resp)+1);
+      buf2 = writevarint(strlen(resp));
+      buf = writevarint(strlen(resp)+1+strlen(buf2));
       write(fd, buf, strlen(buf2)+1); // send packet header.size
       free(buf);
+      free(buf2);
       buf = writevarint(0);
       write(fd, buf, strlen(buf)); // send packet header.type
       free(buf);
@@ -38,19 +38,17 @@ void serverlistping(int fd) {
       continue;
     }
     if (type == 1) {
-      logprint(log_info, "pong");
-      buf = (char *) malloc(8);
-      read(fd, buf, 8); // it wants us to save and send back the long it gives us
-
+      uint64_t clientstatusgar = readvarlongfd(fd); // it wants us to save this to send back
       buf2 = writevarint(9); // header.size
       write(fd, buf2, strlen(buf2));
       free(buf2);
       buf2 = writevarint(1); // header.type
       write(fd, buf2, strlen(buf2));
       free(buf2);
-      write(fd, buf, 8); // send the long back
 
-      free(buf);
+      buf2 = writevarlong(clientstatusgar);
+      write(fd, buf2, strlen(buf2)); // send the long back
+      free(buf2);
 
       // we are done here. nothing else todo
       close(fd);
@@ -61,6 +59,7 @@ void serverlistping(int fd) {
     close(fd);
     return;
   }
+  logprint(log_info, "Pinged");
 }
 
 // any time a socket is connected this is called
@@ -70,7 +69,7 @@ void *client(void *arg) {
 
   int state = 0;
   
-  pthread_detach(pthread_self()); 
+  //pthread_detach(pthread_self()); 
 
   int length, type;
 
@@ -83,8 +82,7 @@ void *client(void *arg) {
     read(*fd, &length, 2); // shove the port somewhere
     int nextstate = readvarintfd(*fd); // get the next state
     if (nextstate == 1) {
-      logprint(log_info, "Pinged");
-      serverlistping(*fd);
+      serverlistping(*fd); // handle ping
       close(*fd);
       return NULL;
     }
