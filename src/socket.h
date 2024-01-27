@@ -20,7 +20,7 @@ void serverlistping(int fd) {
   sprintf(resp, "{\"version\": {\"name\": \"1.20.2\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
   100, 0, "The Frea server"); // maxplayers, onlineplayers, motd
 
-  while (1) { 
+  while (1) {
     length = readvarintfd(fd);
     type = readvarintfd(fd);
     if (type == 0) {
