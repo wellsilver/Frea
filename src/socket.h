@@ -8,6 +8,7 @@ char *s;
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // todo, check this for cross-distribution ability lol
+#include <stdio.h>
 
 void serverlistping(int fd) {
   int length, type;
@@ -17,7 +18,7 @@ void serverlistping(int fd) {
   char *resp = (char *) malloc(500);
   resp[0] = 0;
 
-  sprintf(resp, "{\"version\": {\"name\": \"1.20.2\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
+  sprintf(resp, "{\"version\": {\"name\": \"Frea 1.20.2-1.20.4\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
   100, 0, "The Frea server"); // maxplayers, onlineplayers, motd
 
   while (1) {
@@ -37,7 +38,7 @@ void serverlistping(int fd) {
       free(buf);
       continue;
     }
-    if (type == 1) {
+    else if (type == 1) {
       uint64_t clientstatusgar = readvarlongfd(fd); // it wants us to save this to send back
       buf2 = writevarint(9); // header.size
       write(fd, buf2, strlen(buf2));
@@ -50,16 +51,14 @@ void serverlistping(int fd) {
       write(fd, buf2, strlen(buf2)); // send the long back
       free(buf2);
 
-      // we are done here. nothing else todo
-      close(fd);
-      return;
+      continue;
     }
-
-    // invalid, we are done here
-    close(fd);
-    return;
+    else if (type == 0) return;
   }
-  logprint(log_info, "Pinged");
+}
+
+void client_manage(int *fd) {
+
 }
 
 // any time a socket is connected this is called
@@ -86,7 +85,12 @@ void *client(void *arg) {
       close(*fd);
       return NULL;
     }
-  } else { // bad socket or unsupported version
+    if (nextstate == 2) {
+      client_manage(fd);
+      close(*fd);
+    }
+  }
+  else { // bad socket or unsupported version
     close(*fd);
   }
   return NULL;
