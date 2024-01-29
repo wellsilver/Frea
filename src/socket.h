@@ -1,16 +1,16 @@
 #ifndef sockh
 #define sockh
 
-char *s;
-
 #include "main.c"
 #include "types.h"
+#include "player.h"
+
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // todo, check this for cross-distribution ability lol
 #include <stdio.h>
 
-void serverlistping(int fd) {
+void client_status(int fd) {
   int length, type;
   char *buf;
   char *buf2;
@@ -57,8 +57,24 @@ void serverlistping(int fd) {
   }
 }
 
-void client_manage(int *fd) {
-
+int client_login(int fd, player *pl) { // login state
+  int length, type;
+  char *buf;
+  length = readvarintfd(fd);
+  type = readvarintfd(fd);
+  if (type==0) {
+    buf = readstringfd(fd); // get username
+    strcpy(pl->username, buf); // save username
+    free(buf);
+    recv(fd, pl->uuid, 16, 0); // uuid
+  }
+  else {
+    return -1; // fail
+  }
+  buf = (char *) malloc(1);
+  char *zero = writevarint(0);
+  int length = strlen(pl->username)+16+strlen(zero);
+  
 }
 
 // any time a socket is connected this is called
@@ -75,24 +91,28 @@ void *client(void *arg) {
   length = readvarintfd(*fd);
   type = readvarintfd(*fd);
 
+  player *pl = (player *) malloc(sizeof(struct player));
+  pl->uuid[16] = 0; // null terminator
+  pl->username[16] = 0; // null terminator
+
   if (type == 0) { // handshake
     int ver = readvarintfd(*fd); 
     free(readstringfd(*fd)); // we dont need host name
     read(*fd, &length, 2); // shove the port somewhere
     int nextstate = readvarintfd(*fd); // get the next state
     if (nextstate == 1) {
-      serverlistping(*fd); // handle ping
-      close(*fd);
-      return NULL;
+      client_status(*fd); // handle ping
+      goto end;
     }
     if (nextstate == 2) {
-      client_manage(fd);
-      close(*fd);
+      if (client_login(*fd, pl) == -1) goto end; // end on failure
+      
     }
   }
-  else { // bad socket or unsupported version
-    close(*fd);
-  }
+  end:
+
+  close(*fd);
+  free(pl);
   return NULL;
 }
 
@@ -102,7 +122,7 @@ void *server(void *) {
   int serverfd;
   struct sockaddr_in address;
   
-  s = (char *) malloc(strlen("Minecraft Frea 0.0"));
+  char *s = (char *) malloc(19);
   strcpy(s,"Minecraft Frea 0.0");
 
   logprint(log_info, s);
