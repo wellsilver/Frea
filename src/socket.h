@@ -19,7 +19,7 @@ void client_status(int fd) {
   resp[0] = 0;
 
   sprintf(resp, "{\"version\": {\"name\": \"Frea 1.20.2-1.20.4\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
-  100, 0, "The Frea server"); // maxplayers, onlineplayers, motd
+  1000, 0, "The Frea server"); // maxplayers, onlineplayers, motd
 
   while (1) {
     length = readvarintfd(fd);
@@ -71,10 +71,22 @@ int client_login(int fd, player *pl) { // login state
   else {
     return -1; // fail
   }
-  buf = (char *) malloc(1);
-  char *zero = writevarint(0);
-  int length = strlen(pl->username)+16+strlen(zero);
-  
+  length = 1+strlen(pl->username)+1+16+1;
+  buf = writevarint(length);
+  write(fd, buf, strlen(buf)); // send length
+  free(buf);
+  buf = writevarint(2);
+  write(fd, buf, strlen(buf)); // send type
+  free(buf);
+  write(fd, pl->uuid, 16); // send uuid
+  buf = writevarint(strlen(pl->username)); 
+  write(fd, buf, strlen(buf)); // username.length
+  free(buf);
+  write(fd, pl->username, strlen(pl->username)); // username
+  // dont free pl->username
+  buf = writevarint(0);
+  write(fd, buf, strlen(buf));
+  free(buf);
 }
 
 // any time a socket is connected this is called
