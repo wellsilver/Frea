@@ -18,7 +18,7 @@ void client_status(int fd) {
   char *resp = (char *) malloc(500);
   resp[0] = 0;
 
-  sprintf(resp, "{\"version\": {\"name\": \"Frea 1.20.2-1.20.4\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
+  sprintf(resp, "{\"version\": {\"name\": \"Frea 1.20.2\", \"protocol\": 764}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
   1000, 0, "The Frea server"); // maxplayers, onlineplayers, motd
 
   while (1) {
@@ -87,6 +87,19 @@ int client_login(int fd, player *pl) { // login state
   buf = writevarint(0);
   write(fd, buf, strlen(buf));
   free(buf);
+
+  length = readvarintfd(fd);
+  type = readvarintfd(fd);
+  
+  printf("a\n");
+  if (type == 3) {
+    buf = malloc(30);
+    sprintf(buf, "%s Joined", pl->username);
+    logprint(log_info, buf);
+    return 0;
+  } else {
+    return -1;
+  }
 }
 
 // any time a socket is connected this is called
