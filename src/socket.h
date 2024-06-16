@@ -2,7 +2,7 @@
 #define sockh
 
 #include "main.c"
-#include "types.h"
+#include "util.h"
 #include "player.h"
 
 #include <pthread.h>
@@ -58,47 +58,7 @@ void client_status(int fd) {
 }
 
 int client_login(int fd, player *pl) { // login state
-  int length, type;
-  char *buf;
-  length = readvarintfd(fd);
-  type = readvarintfd(fd);
-  if (type==0) {
-    buf = readstringfd(fd); // get username
-    strcpy(pl->username, buf); // save username
-    free(buf);
-    recv(fd, pl->uuid, 16, 0); // uuid
-  }
-  else {
-    return -1; // fail
-  }
-  length = 1+strlen(pl->username)+1+16+1;
-  buf = writevarint(length);
-  write(fd, buf, strlen(buf)); // send length
-  free(buf);
-  buf = writevarint(2);
-  write(fd, buf, strlen(buf)); // send type
-  free(buf);
-  write(fd, pl->uuid, 16); // send uuid
-  buf = writevarint(strlen(pl->username)); 
-  write(fd, buf, strlen(buf)); // username.length
-  free(buf);
-  write(fd, pl->username, strlen(pl->username)); // username
-  // dont free pl->username
-  buf = writevarint(0);
-  write(fd, buf, strlen(buf));
-  free(buf);
 
-  length = readvarintfd(fd);
-  type = readvarintfd(fd);
-  
-  if (type == 3) {
-    buf = malloc(30);
-    sprintf(buf, "%s Joined", pl->username);
-    logprint(log_info, buf);
-    return 0;
-  } else {
-    return -1;
-  }
 }
 
 // any time a socket is connected this is called
