@@ -1,2 +1,4 @@
 
-int m
+int main() {
+    
+}
