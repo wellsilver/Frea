@@ -91,7 +91,6 @@ int client_login(int fd, player *pl) { // login state
   length = readvarintfd(fd);
   type = readvarintfd(fd);
   
-  printf("a\n");
   if (type == 3) {
     buf = malloc(30);
     sprintf(buf, "%s Joined", pl->username);

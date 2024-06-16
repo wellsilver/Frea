@@ -52,7 +52,7 @@ void *stdinhandle(void *) {
     }
     read(STDIN_FILENO, buf, 128);
     write(cnsl[1], "", 1);
-    processcmd(buf);
+    processcmd(0,buf);
   }
   return NULL;
 }
