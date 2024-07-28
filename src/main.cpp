@@ -3,17 +3,11 @@
 
 int active = 1;
 
-void log(int level, const char *str);
-
 #include <thread>
 #include <iostream>
 #include <unistd.h>
 
 #include "socket.hpp"
-
-void log(int level, const char *str) {
-  printf("%i : %s\n", level, str);
-}
 
 int main() {
   socketmain();

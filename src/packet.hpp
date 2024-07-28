@@ -17,9 +17,11 @@ int64_t readvarintfd(int fd, int *dist) {
   int position = 0;
   char currentByte;
   int d = 0;
+  int readerr;
 
   while (1) {
-    read(fd, &currentByte, 1);
+    readerr = read(fd, &currentByte, 1);
+    if (readerr < 0) throw std::runtime_error("failed to read");
 
     d++;
     value |= (currentByte & segmentbits) << position;
@@ -40,7 +42,7 @@ int64_t readvarlongfd(int fd, int *dist) {
   int d = 0;
 
   while (1) {
-    read(fd, &currentByte, 1);
+    if (read(fd, &currentByte, 1) != 0) throw std::runtime_error("failed to read");
     d++;
     value |= (long) (currentByte & segmentbits) << position;
 
@@ -150,8 +152,13 @@ public:
   // read a packet
   packet(int fd) {
     int dist=0;
-    length = readvarintfd(fd, &dist);
-    id = readvarintfd(fd, &dist);
+    try {
+      length = readvarintfd(fd, &dist);
+      id = readvarintfd(fd, &dist);
+    } catch (std::runtime_error err) {
+      badpacket = true;
+      return;
+    }
 
     unsigned int dataleft = length-dist;
 

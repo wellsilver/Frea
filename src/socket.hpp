@@ -3,8 +3,6 @@
 
 #include "status.hpp"
 
-#include <thread>
-
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>
@@ -14,25 +12,26 @@ void *handshake(void *fd_ptr) {
   int fd = *((int *) fd_ptr);
   delete (int *) fd_ptr;
 
-  struct timeval timeout;      
-  timeout.tv_sec = 0;
-  timeout.tv_usec = 500;
+  struct timeval timeout;
+  timeout.tv_sec = 1;
+  timeout.tv_usec = 0;
 
   if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
-    log(-1, "setsockopt failed\n");
+    printf("setsockopt failed\n");
 
   if (setsockopt (fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
-    log(-1, "setsockopt failed\n");
-  
+    printf("setsockopt failed\n");
+
+  printf("Incoming connection\n");
   packet handshake(fd);
   if (handshake.id == 0 && !handshake.badpacket) {
-    handshake.getvarint(); // this is in the way of the state. should be sanity checked later
-    handshake.getstring(); // this is in the way of the state. should be sanity checked later
-    handshake.getshort(); // this is in the way of the state. should be sanity checked later
+    printf("ver: %i\n", handshake.getvarint()); // this is in the way of the state. should be sanity checked later
+    printf("host: %s\n", handshake.getstring().c_str()); // this is in the way of the state. should be sanity checked later
+    printf("port: %i\n", handshake.getshort()); // this is in the way of the state. should be sanity checked later
     int req = handshake.getvarint();
     if (req == 1) statushandler(fd);
   } else {
-    printf("bad packet\n");
+    printf("bad incoming %i\n", handshake.id);
   }
 
   close(fd);
@@ -45,7 +44,7 @@ void socketmain() {
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
   if (fd == 0) {
-    log(-1, "Bad Socket");
+    printf("Bad Socket");
     active = 0;
   }
   
@@ -56,25 +55,36 @@ void socketmain() {
 
   err = bind(fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
   if (err != 0) {
-    log(-1, "Cant Bind!");
+    printf("Cant Bind!");
     active = 0;
   }
 
-  err = listen(fd, 10);
+  err = listen(fd, 1);
   if (err != 0) {
-    log(-1, "Cant listen!");
+    printf("Cant listen!");
     active = 0;
   }
 
-  if (active) log(0, "Created socket successfully");
+  if (active) printf("Created socket successfully\n");
 
   pthread_t ptid;
+
+  struct timeval timeout;
+  timeout.tv_sec = 1;
+  timeout.tv_usec = 0;
+
+  if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
+    printf("setsockopt failed\n");
+
+  if (setsockopt (fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+    printf("setsockopt failed\n");
 
   while (active) {
     int *newcon = new int;
     *newcon = accept(fd, NULL, NULL);
     if (*newcon <= 0) {delete newcon;continue;}
     pthread_create(&ptid, NULL, &handshake, newcon);
+    pthread_detach(ptid);
   }
 
   close(fd);
