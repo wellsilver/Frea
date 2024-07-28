@@ -1,7 +1,9 @@
 #ifndef status_hpp
 #define status_hpp
 
-void statushandler() {
+#include "packet.hpp"
+
+void statushandler(int fd) {
   
 }
 
