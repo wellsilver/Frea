@@ -2,20 +2,57 @@
 #define status_hpp
 
 #include "packet.hpp"
+#include <stdarg.h>
+
+char* concat(int count, ...) {
+  va_list ap;
+  int i;
+
+  // Find required length to store merged string
+  int len = 1; // room for NULL
+  va_start(ap, count);
+  for(i=0 ; i<count ; i++)
+    len += strlen(va_arg(ap, char*));
+  va_end(ap);
+
+  // Allocate memory to concat strings
+  char *merged = (char *) calloc(sizeof(char),len);
+  int null_pos = 0;
+
+  // Actually concatenate strings
+  va_start(ap, count);
+  for(i=0 ; i<count ; i++)
+  {
+    char *s = va_arg(ap, char*);
+    strcpy(merged+null_pos, s);
+    null_pos += strlen(s);
+  }
+  va_end(ap);
+
+  return merged;
+}
+
 
 void statushandler(int fd) {
-  // entertain the client
-  printf("statushandler has fd\n");
+  char *resp = (char *) malloc(500);
+  resp[0] = 0;
+
+  sprintf(resp, "{\"version\": {\"name\": \"Frea 1.21\", \"protocol\": 767}, \"players\": {\"max\": %i, \"online\": %i}, \"description\": \"%s\", \"enforcesSecureChat\": false, \"previewsChat\": false}", 
+  1000, 0, "The Frea server"); // maxplayers, onlineplayers, motd
+
   while (1) {
-    packet pckt(fd);
-    if (pckt.badpacket) break;
-    if (pckt.id == 0) { // Status Request
-      printf("recieved status request\n");
+    packet pkt(fd);
+    if (pkt.id == 0) {
+      packet sending;
+      sending.id = 0;
+      sending.writestring(std::string(resp));
+      sending.sendp(fd);
+      continue;
     }
-    if (pckt.id == 1) { // Ping Request
-      printf("recieved ping request\n");
+    else if (pkt.id == 1) {
+      return;
     }
-    break;
+    else return;
   }
 }
 

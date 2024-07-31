@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <string>
 #include <stdlib.h>
+#include <cstring>
 
 #define segmentbits 0x7F
 #define continuebit 0x80
@@ -55,7 +56,7 @@ int64_t readvarlongfd(int fd, int *dist) {
 }
 
 // read a varint
-int64_t readvarint(char *v) {
+int64_t readvarintt(char *v) {
   int value = 0;
   int position = 0;
   char currentByte;
@@ -74,7 +75,7 @@ int64_t readvarint(char *v) {
 }
 
 // read a varlong
-int64_t readvarlong(char *v) {
+int64_t readvarlongt(char *v) {
   int value = 0;
   int position = 0;
   char currentByte;
@@ -92,7 +93,7 @@ int64_t readvarlong(char *v) {
   return value;
 }
 
-char *writevarint(int v) {
+char *writevarintt(int v) {
   int csize = 1;
   char *c = (char *) malloc(1);
   c[0] = 0;
@@ -115,7 +116,7 @@ char *writevarint(int v) {
   }
 }
 
-char *writevarlong(int v) {
+char *writevarlongt(int v) {
   int csize = 1;
   char *c = (char *) malloc(1);
   c[0] = 0;
@@ -147,7 +148,8 @@ public:
 
   // create a packet
   packet() {
-    
+    length = 0;
+    id = 0;
   }
   // read a packet
   packet(int fd) {
@@ -200,6 +202,25 @@ public:
     convertable[1] = data[1];
     data.erase(data.begin(), data.begin()+2);
     return htons(*(uint16_t *) convertable);
+  }
+
+  void writestring(std::string str) {
+    char *length_ = writevarintt(str.size());
+    std::string strlength(length_);
+    data += strlength;
+    data += str;
+    free(length_);
+    length += data.length();
+  }
+
+  void sendp(int fd) { // this is so weird because id could be 0 which as a varint would be 0.
+    char *buf = writevarintt(data.size()+1);
+    write(fd, buf, strlen(buf));
+    char *id_ = writevarintt(id);
+    write(fd, id_, 1);
+    write(fd, data.c_str(), data.length());
+    free(buf);
+    free(id_);
   }
 };
 

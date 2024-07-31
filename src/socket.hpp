@@ -28,12 +28,14 @@ void *handshake(void *fd_ptr) {
     printf("ver: %i\n", handshake.getvarint()); // this is in the way of the state. should be sanity checked later
     printf("host: %s\n", handshake.getstring().c_str()); // this is in the way of the state. should be sanity checked later
     printf("port: %i\n", handshake.getshort()); // this is in the way of the state. should be sanity checked later
-    int req = handshake.getvarint();
-    printf("next: %i\n", handshake.getvarint());
+    uint32_t req = handshake.getvarint();
+    printf("next: %i\n", req);
     if (req==1) statushandler(fd);
   } else {
     printf("bad incoming %i\n", handshake.id);
   }
+
+  printf("Connection done\n");
 
   close(fd);
   return NULL;
