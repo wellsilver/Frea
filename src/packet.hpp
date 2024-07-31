@@ -152,15 +152,15 @@ public:
   // read a packet
   packet(int fd) {
     int dist=0;
+    unsigned int dataleft;
     try {
       length = readvarintfd(fd, &dist);
+      dataleft = length-dist;
       id = readvarintfd(fd, &dist);
     } catch (std::runtime_error err) {
       badpacket = true;
       return;
     }
-
-    unsigned int dataleft = length-dist;
 
     data.resize(dataleft);
     int err = read(fd, (void *) data.c_str(), dataleft);
@@ -198,6 +198,7 @@ public:
     char convertable[2];
     convertable[0] = data[0];
     convertable[1] = data[1];
+    data.erase(data.begin(), data.begin()+2);
     return htons(*(uint16_t *) convertable);
   }
 };
