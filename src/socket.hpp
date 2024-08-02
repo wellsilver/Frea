@@ -42,7 +42,7 @@ void *handshake(void *fd_ptr) {
 }
 
 
-void socketmain() {
+void *socketmain(void *arg) {
   int fd, err;
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -91,6 +91,7 @@ void socketmain() {
   }
 
   close(fd);
+  return NULL;
 }
 
 #endif

@@ -10,7 +10,12 @@ int active = 1;
 #include "socket.hpp"
 
 int main(int argc, char **argv) {
-  socketmain();
+  pthread_t socketthread;
+  pthread_create(&socketthread, NULL, socketmain, NULL);
+
+  while (active) {
+    sleep(1);
+  }
 }
 
 #endif
