@@ -9,16 +9,8 @@ int active = 1;
 
 #include "socket.hpp"
 
-int main() {
+int main(int argc, char **argv) {
   socketmain();
-
-  // wait
-  while (active) {
-    char c;
-    read(STDIN_FILENO, &c, 1);
-    active=0;
-  }
-  
 }
 
 #endif

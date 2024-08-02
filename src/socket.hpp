@@ -13,8 +13,8 @@ void *handshake(void *fd_ptr) {
   delete (int *) fd_ptr;
 
   struct timeval timeout;
-  timeout.tv_sec = 1;
-  timeout.tv_usec = 0;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 500;
 
   if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
     printf("setsockopt failed\n");
@@ -27,8 +27,8 @@ void *handshake(void *fd_ptr) {
   if (handshake.id == 0 && !handshake.badpacket) {
     printf("ver: %i\n", handshake.getvarint()); // this is in the way of the state. should be sanity checked later
     printf("host: %s\n", handshake.getstring().c_str()); // this is in the way of the state. should be sanity checked later
-    printf("port: %i\n", handshake.getshort()); // this is in the way of the state. should be sanity checked later
-    uint32_t req = handshake.getvarint();
+    printf("port: %i\n", handshake.getushort()); // this is in the way of the state. should be sanity checked later
+    int32_t req = handshake.getvarint();
     printf("next: %i\n", req);
     if (req==1) statushandler(fd);
   } else {
@@ -58,13 +58,13 @@ void socketmain() {
 
   err = bind(fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
   if (err != 0) {
-    printf("Cant Bind!");
+    printf("Cant Bind!\n");
     active = 0;
   }
 
   err = listen(fd, 1);
   if (err != 0) {
-    printf("Cant listen!");
+    printf("Cant listen!\n");
     active = 0;
   }
 
@@ -73,8 +73,8 @@ void socketmain() {
   pthread_t ptid;
 
   struct timeval timeout;
-  timeout.tv_sec = 1;
-  timeout.tv_usec = 0;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 100;
 
   if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
     printf("setsockopt failed\n");

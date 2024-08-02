@@ -21,7 +21,7 @@ int64_t readvarintfd(int fd, int *dist) {
   int readerr;
 
   while (1) {
-    readerr = read(fd, &currentByte, 1);
+    readerr = recv(fd, &currentByte, 1, 0);
     if (readerr < 0) throw std::runtime_error("failed to read");
 
     d++;
@@ -43,7 +43,7 @@ int64_t readvarlongfd(int fd, int *dist) {
   int d = 0;
 
   while (1) {
-    if (read(fd, &currentByte, 1) != 0) throw std::runtime_error("failed to read");
+    if (recv(fd, &currentByte, 1, 0) != 0) throw std::runtime_error("failed to read");
     d++;
     value |= (long) (currentByte & segmentbits) << position;
 
@@ -76,15 +76,15 @@ int64_t readvarintt(char *v) {
 
 // read a varlong
 int64_t readvarlongt(char *v) {
-  int value = 0;
+  long long value = 0;
   int position = 0;
   char currentByte;
   int d = 0;
 
-  while (1) {
+  while (true) {
     currentByte = v[d];
     d++;
-    value |= (long) (currentByte & segmentbits) << position;
+    value |= (long long) (currentByte & segmentbits) << position;
 
     if ((currentByte & continuebit) == 0) break;
 
@@ -116,7 +116,7 @@ char *writevarintt(int v) {
   }
 }
 
-char *writevarlongt(int v) {
+char *writevarlongt(int64_t v) {
   int csize = 1;
   char *c = (char *) malloc(1);
   c[0] = 0;
@@ -165,7 +165,7 @@ public:
     }
 
     data.resize(dataleft);
-    int err = read(fd, (void *) data.c_str(), dataleft);
+    int err = recv(fd, (void *) data.c_str(), dataleft, 0);
     if (err < 0) badpacket=true;
   }
 
@@ -189,6 +189,25 @@ public:
     return value;
   }
 
+  int64_t getvarlong() {
+    int value = 0;
+    int position = 0;
+    char currentByte;
+    int d = 0;
+
+    while (1) {
+      currentByte = data[d];
+      d++;
+      value |= (long) (currentByte & segmentbits) << position;
+
+      if ((currentByte & continuebit) == 0) break;
+
+      position += 7;
+    }
+    data.erase(data.begin(),data.begin()+d);
+    return value;
+  }
+
   std::string getstring() {
     int length = getvarint();
     std::string ret = data.substr(0, length);
@@ -196,12 +215,10 @@ public:
     return ret;
   }
 
-  uint16_t getshort() {
-    char convertable[2];
-    convertable[0] = data[0];
-    convertable[1] = data[1];
+  uint16_t getushort() {
+    std::string i = data.substr(0, 2);
     data.erase(data.begin(), data.begin()+2);
-    return htons(*(uint16_t *) convertable);
+    return htons(*(uint16_t *) i.c_str());
   }
 
   void writestring(std::string str) {
@@ -213,12 +230,22 @@ public:
     length += data.length();
   }
 
+  void writevarlong(int64_t longthing) {
+    char *longthing_ = writevarlongt(longthing);
+    data += std::string(longthing_);
+    length += std::string(longthing_).size();
+    free(longthing_);
+  }
+
   void sendp(int fd) { // this is so weird because id could be 0 which as a varint would be 0.
     char *buf = writevarintt(data.size()+1);
-    write(fd, buf, strlen(buf));
+    //write(fd, buf, strlen(buf));
+    send(fd, buf, strlen(buf), 0);
     char *id_ = writevarintt(id);
-    write(fd, id_, 1);
-    write(fd, data.c_str(), data.length());
+    //write(fd, id_, 1);
+    send(fd, id_, 1, 0);
+    //write(fd, data.c_str(), data.length());
+    send(fd, data.c_str(), data.length(), 0);
     free(buf);
     free(id_);
   }
