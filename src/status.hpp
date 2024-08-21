@@ -16,7 +16,7 @@ void statushandler(int fd) {
       sending.sendp(fd);
     }
     else if (pkt.id == 1) {
-      pkt.sendp(fd);
+      pkt.sendp(fd); // supposed to send the exact same thing back
     }
   }
 }

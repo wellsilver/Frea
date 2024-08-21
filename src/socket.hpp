@@ -2,6 +2,7 @@
 #define socket_hpp
 
 #include "status.hpp"
+#include "play.hpp"
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -31,6 +32,7 @@ void *handshake(void *fd_ptr) {
     int32_t req = handshake.getvarint();
     printf("next: %i\n", req);
     if (req==1) statushandler(fd);
+    if (req==2) playhandler(fd);
   } else {
     printf("bad incoming %i\n", handshake.id);
   }
